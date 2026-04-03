@@ -2,80 +2,94 @@
 
 Local-first research assistant for machine learning and mathematics papers.
 
-## Goal
+## Why This Project
 
-This project provides a recruiter-grade MVP scaffold that supports:
+Most AI paper assistants look good in demos but fail on trust and reproducibility.
+This MVP focuses on practical research behavior:
 
-- PDF ingestion and text chunking with page tracking
-- local indexing with FAISS
-- retrieval and question answering with citations
-- paper-to-paper structured comparison
-- simple evaluation scripts for retrieval and answer quality
+- ingest real papers (PDF)
+- retrieve relevant evidence locally
+- answer questions with explicit citations
+- compare papers in a structured format
+- include lightweight evaluation scripts from day one
+
+## What It Does
+
+- PDF ingestion and text chunking with page metadata
+- local semantic retrieval with FAISS
+- QA grounded in retrieved chunks with citations like `[doc_name p.3]`
+- paper comparison on objective/method/datasets/metrics/strengths/limitations
+- retrieval and answer-quality eval skeletons
+
+## Demo In 60 Seconds
+
+1. Upload 1-2 PDFs from Streamlit.
+2. Ask a question over your corpus.
+3. Read an answer with citations.
+4. Compare two papers side-by-side in JSON output.
+
+Demo video: `TODO`  
+Screenshots:
+
+- Upload and document list: `docs/screenshots/upload.png`
+- QA with citations: `docs/screenshots/qa.png`
+- Comparison output: `docs/screenshots/compare.png`
 
 ## Architecture
 
 - FastAPI backend: `app/backend/main.py`
 - Streamlit frontend: `app/frontend/streamlit_app.py`
-- Services:
+- Core services:
   - PDF extraction: `app/services/pdf_ingestion.py`
   - chunking: `app/services/chunking.py`
-  - embeddings + LLM provider abstraction: `app/services/providers.py`
+  - embeddings/provider abstraction: `app/services/providers.py`
   - persistence (SQLite): `app/services/repository.py`
-  - FAISS index: `app/services/vector_store.py`
-  - retrieval/QA/comparison/index rebuild
+  - vector index (FAISS): `app/services/vector_store.py`
+  - ingestion/retrieval/QA/comparison/index rebuild orchestration
 - Evals: `evals/`
 
 More details: `docs/architecture.md`.
 
-## Setup
+## Quickstart (Windows-friendly)
 
-### Option A: `uv` (recommended)
+```bash
+python -m pip install -e ".[dev]"
+copy .env.example .env
+python -m uvicorn app.backend.main:app --reload --port 8000
+```
+
+In a second terminal:
+
+```bash
+python -m streamlit run app/frontend/streamlit_app.py
+```
+
+## Optional Setup with `uv`
 
 ```bash
 uv venv
 uv pip install -e ".[dev]"
-cp .env.example .env
-```
-
-### Option B: `pip`
-
-```bash
-python -m venv .venv
-. .venv/bin/activate  # Windows: .venv\\Scripts\\activate
-pip install -e ".[dev]"
-cp .env.example .env
-```
-
-## Run
-
-Start API:
-
-```bash
+copy .env.example .env
 uv run uvicorn app.backend.main:app --reload --port 8000
-```
-
-Start frontend in another terminal:
-
-```bash
 uv run streamlit run app/frontend/streamlit_app.py
 ```
 
 ## API Endpoints
 
 - `GET /health`
-- `POST /documents/upload` (multipart PDFs)
+- `POST /documents/upload`
 - `GET /documents`
 - `POST /retrieval/search`
 - `POST /qa/ask`
 - `POST /papers/compare`
 - `POST /index/rebuild`
-- `POST /documents/arxiv` (stub)
+- `POST /documents/arxiv` (stub with TODO)
 
 ## Tests and Lint
 
 ```bash
-uv run ruff check .
-uv run pytest -q
+python -m ruff check .
+python -m pytest -q
 ```
 
 ## Evals
@@ -83,20 +97,26 @@ uv run pytest -q
 Run backend first, then:
 
 ```bash
-uv run python evals/retrieval_eval.py
-uv run python evals/answer_eval.py
+python evals/retrieval_eval.py
+python evals/answer_eval.py
 ```
 
-## Known limitations
+## Known Limitations
 
-- PDF extraction may miss formulas/figures and complex layouts.
-- Mock provider is deterministic but not semantic; use `LLM_PROVIDER=openai` for real embeddings/answers.
-- arXiv ingestion is a clean TODO stub.
-- Eval scripts are intentionally lightweight heuristics.
+- PDF extraction can miss formulas, figures, and dense table content.
+- Default `LLM_PROVIDER=mock` is local and deterministic but not semantic.
+- arXiv ingestion endpoint is a clean stub.
+- eval scripts are lightweight heuristics, not full benchmark tooling.
 
 ## Roadmap
 
-1. Add robust arXiv fetch + PDF ingestion endpoint.
-2. Upgrade chunking (section-aware split, equation-aware parsing).
-3. Add richer eval set and judge-based answer scoring.
-4. Add compare mode that uses structured extraction prompts with confidence scores.
+1. Real arXiv ingestion (URL/ID -> PDF -> existing pipeline).
+2. Math-aware extraction and section-aware chunking.
+3. Stronger eval dataset with retrieval and faithfulness metrics.
+4. Confidence guardrails for weak-evidence answers.
+
+## What I Learned
+
+- Citation-first UX is crucial for trust in research copilots.
+- Service boundaries make experimentation much easier.
+- Even small evals improve decision quality during iteration.
