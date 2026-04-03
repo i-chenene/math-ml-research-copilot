@@ -35,6 +35,15 @@ Screenshots:
 - QA with citations: `docs/screenshots/qa.png`
 - Comparison output: `docs/screenshots/compare.png`
 
+## Demo Checklist
+
+Before sharing the project publicly:
+
+- [ ] Add a 60-90s demo video link
+- [ ] Add 3 screenshots in `docs/screenshots/`
+- [ ] Show one QA example with citations in README
+- [ ] Mention one known limitation and one next step
+
 ## Architecture
 
 - FastAPI backend: `app/backend/main.py`
