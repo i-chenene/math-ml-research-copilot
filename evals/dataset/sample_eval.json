@@ -1,0 +1,14 @@
+[
+  {
+    "id": "q1",
+    "question": "What objective does the paper define?",
+    "expected_doc_name_contains": "paper",
+    "expected_terms": ["objective", "goal"]
+  },
+  {
+    "id": "q2",
+    "question": "Which datasets are used?",
+    "expected_doc_name_contains": "paper",
+    "expected_terms": ["dataset", "benchmark"]
+  }
+]
